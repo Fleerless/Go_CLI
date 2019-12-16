@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"log"
+	"net"
 	"github.com/urfave/cli"
 )
 
@@ -18,8 +20,26 @@ func main () {
 		},
 	}
 
-	app.Commands = []cli.Command{
-		Name: "ns"
-		Usage: "Looks up the Name Servers for a Particular Host"
+	app.Commands = []*cli.Command{
+		{
+		Name: "ns",
+		Usage: "Looks up the Name Servers for a Particular Host",
+		Flags: MyFlags,
+		Action: func(c *cli.Context) error {
+			ns, err := net.LookupNS(c.String("host"))
+			if err != nil {
+				return err 
+			}
+			for i:=0; i<len(ns); i++ {
+				fmt.Println(ns[i].Host)
+			}
+			return nil
+		},
+		},
+	}
+
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
 	}
 }
